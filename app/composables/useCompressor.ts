@@ -234,11 +234,34 @@ const canvasToBlob = (canvas: HTMLCanvasElement, mimeType: string, value: number
     canvas.toBlob(resolve, mimeType, value)
   })
 
+const getPngOptimisationLevel = (selectedQuality: number) => {
+  const normalizedQuality = Math.min(100, Math.max(10, selectedQuality))
+  return Math.min(6, Math.max(1, Math.round((100 - normalizedQuality) / 18) + 1))
+}
+
+const compressPngImage = async (file: File, selectedQuality: number) => {
+  const { optimise } = await import('@jsquash/oxipng')
+  const optimizedBuffer = await optimise(await file.arrayBuffer(), {
+    level: getPngOptimisationLevel(selectedQuality),
+    optimiseAlpha: true
+  })
+
+  if (optimizedBuffer.byteLength >= file.size) {
+    return file
+  }
+
+  return new Blob([optimizedBuffer], { type: 'image/png' })
+}
+
 const compressImage = async (file: File, selectedQuality: number, locale: AppLocale) => {
   const mimeType = detectMimeType(file)
 
   if (!IMAGE_MIME_TYPES.has(mimeType)) {
     return file
+  }
+
+  if (mimeType === 'image/png') {
+    return compressPngImage(file, selectedQuality)
   }
 
   const canvas = await loadImageToCanvas(file, locale)
