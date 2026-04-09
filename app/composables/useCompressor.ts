@@ -234,23 +234,88 @@ const canvasToBlob = (canvas: HTMLCanvasElement, mimeType: string, value: number
     canvas.toBlob(resolve, mimeType, value)
   })
 
+const quantizeChannel = (value: number, levels: number) => {
+  if (levels <= 1) {
+    return 0
+  }
+
+  const step = 255 / (levels - 1)
+  return Math.max(0, Math.min(255, Math.round(Math.round(value / step) * step)))
+}
+
 const getPngOptimisationLevel = (selectedQuality: number) => {
   const normalizedQuality = Math.min(100, Math.max(10, selectedQuality))
   return Math.min(6, Math.max(1, Math.round((100 - normalizedQuality) / 18) + 1))
 }
 
-const compressPngImage = async (file: File, selectedQuality: number) => {
+const getPngQuantizationLevels = (selectedQuality: number) => {
+  const normalizedQuality = Math.min(100, Math.max(10, selectedQuality))
+  const qualityFactor = (normalizedQuality - 10) / 90
+
+  return {
+    colorLevels: Math.max(8, Math.round(8 + qualityFactor * 248)),
+    alphaLevels: Math.max(16, Math.round(16 + qualityFactor * 240))
+  }
+}
+
+const applyPngQuantization = (canvas: HTMLCanvasElement, selectedQuality: number) => {
+  if (selectedQuality >= 100) {
+    return
+  }
+
+  const context = canvas.getContext('2d')
+  if (!context) {
+    return
+  }
+
+  const { colorLevels, alphaLevels } = getPngQuantizationLevels(selectedQuality)
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
+  const { data } = imageData
+
+  for (let index = 0; index < data.length; index += 4) {
+    data[index] = quantizeChannel(data[index]!, colorLevels)
+    data[index + 1] = quantizeChannel(data[index + 1]!, colorLevels)
+    data[index + 2] = quantizeChannel(data[index + 2]!, colorLevels)
+    data[index + 3] = quantizeChannel(data[index + 3]!, alphaLevels)
+  }
+
+  context.putImageData(imageData, 0, 0)
+}
+
+const optimisePngBlob = async (blob: Blob, selectedQuality: number) => {
   const { optimise } = await import('@jsquash/oxipng')
-  const optimizedBuffer = await optimise(await file.arrayBuffer(), {
+  const optimizedBuffer = await optimise(await blob.arrayBuffer(), {
     level: getPngOptimisationLevel(selectedQuality),
     optimiseAlpha: true
   })
 
-  if (optimizedBuffer.byteLength >= file.size) {
-    return file
+  if (optimizedBuffer.byteLength >= blob.size) {
+    return blob
   }
 
   return new Blob([optimizedBuffer], { type: 'image/png' })
+}
+
+const compressPngImage = async (file: File, selectedQuality: number, locale: AppLocale) => {
+  if (selectedQuality >= 100) {
+    const optimizedOriginalBlob = await optimisePngBlob(file, selectedQuality)
+    return optimizedOriginalBlob.size < file.size ? optimizedOriginalBlob : file
+  }
+
+  const canvas = await loadImageToCanvas(file, locale)
+  applyPngQuantization(canvas, selectedQuality)
+
+  const quantizedBlob = await canvasToBlob(canvas, 'image/png', 1)
+  if (!quantizedBlob) {
+    return file
+  }
+
+  const optimizedBlob = await optimisePngBlob(quantizedBlob, selectedQuality)
+  if (optimizedBlob.size >= file.size) {
+    return file
+  }
+
+  return optimizedBlob
 }
 
 const compressImage = async (file: File, selectedQuality: number, locale: AppLocale) => {
@@ -261,7 +326,7 @@ const compressImage = async (file: File, selectedQuality: number, locale: AppLoc
   }
 
   if (mimeType === 'image/png') {
-    return compressPngImage(file, selectedQuality)
+    return compressPngImage(file, selectedQuality, locale)
   }
 
   const canvas = await loadImageToCanvas(file, locale)

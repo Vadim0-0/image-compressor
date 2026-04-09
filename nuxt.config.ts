@@ -77,6 +77,17 @@ async function compressBuiltImages(publicDir: string) {
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
+  build: {
+    transpile: ['@jsquash/oxipng']
+  },
+  vite: {
+    optimizeDeps: {
+      exclude: ['@jsquash/oxipng']
+    },
+    worker: {
+      format: 'es'
+    }
+  },
   css: ['~/assets/styles/index.scss'],
   app: {
     head: {
