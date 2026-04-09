@@ -99,9 +99,9 @@ export default defineNuxtConfig({
   ],
   nitro: {
     output: {
-      dir: 'build',
-      publicDir: 'build/public',
-      serverDir: 'build/server'
+      dir: 'dist',
+      publicDir: 'dist/public',
+      serverDir: 'dist/server'
     },
     hooks: {
       compiled: async (nitro: Nitro) => {
