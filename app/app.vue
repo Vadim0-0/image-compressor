@@ -7,7 +7,7 @@ useHead({
   }
 })
 </script>
-
+ 
 <template>
   <NuxtLayout>
     <NuxtPage />

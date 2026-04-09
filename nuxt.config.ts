@@ -98,11 +98,6 @@ export default defineNuxtConfig({
     }
   ],
   nitro: {
-    output: {
-      dir: 'dist',
-      publicDir: 'dist/public',
-      serverDir: 'dist/server'
-    },
     hooks: {
       compiled: async (nitro: Nitro) => {
         if (process.env.NODE_ENV !== 'production') {
