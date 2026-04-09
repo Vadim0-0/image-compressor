@@ -3,9 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt generate",
+    "build": "NITRO_PRESET=static nuxt generate",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
+    "generate": "NITRO_PRESET=static nuxt generate",
     "postbuild": "node build-dist.mjs",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
