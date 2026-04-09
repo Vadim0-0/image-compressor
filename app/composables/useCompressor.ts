@@ -234,6 +234,16 @@ const canvasToBlob = (canvas: HTMLCanvasElement, mimeType: string, value: number
     canvas.toBlob(resolve, mimeType, value)
   })
 
+const yieldToBrowser = () =>
+  new Promise<void>((resolve) => {
+    if (!process.client) {
+      resolve()
+      return
+    }
+
+    window.setTimeout(resolve, 0)
+  })
+
 const quantizeChannel = (value: number, levels: number) => {
   if (levels <= 1) {
     return 0
@@ -258,7 +268,7 @@ const getPngQuantizationLevels = (selectedQuality: number) => {
   }
 }
 
-const applyPngQuantization = (canvas: HTMLCanvasElement, selectedQuality: number) => {
+const applyPngQuantization = async (canvas: HTMLCanvasElement, selectedQuality: number) => {
   if (selectedQuality >= 100) {
     return
   }
@@ -271,12 +281,21 @@ const applyPngQuantization = (canvas: HTMLCanvasElement, selectedQuality: number
   const { colorLevels, alphaLevels } = getPngQuantizationLevels(selectedQuality)
   const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
   const { data } = imageData
+  const chunkSize = 262144
 
-  for (let index = 0; index < data.length; index += 4) {
-    data[index] = quantizeChannel(data[index]!, colorLevels)
-    data[index + 1] = quantizeChannel(data[index + 1]!, colorLevels)
-    data[index + 2] = quantizeChannel(data[index + 2]!, colorLevels)
-    data[index + 3] = quantizeChannel(data[index + 3]!, alphaLevels)
+  for (let start = 0; start < data.length; start += chunkSize) {
+    const end = Math.min(start + chunkSize, data.length)
+
+    for (let index = start; index < end; index += 4) {
+      data[index] = quantizeChannel(data[index]!, colorLevels)
+      data[index + 1] = quantizeChannel(data[index + 1]!, colorLevels)
+      data[index + 2] = quantizeChannel(data[index + 2]!, colorLevels)
+      data[index + 3] = quantizeChannel(data[index + 3]!, alphaLevels)
+    }
+
+    if (end < data.length) {
+      await yieldToBrowser()
+    }
   }
 
   context.putImageData(imageData, 0, 0)
@@ -303,7 +322,7 @@ const compressPngImage = async (file: File, selectedQuality: number, locale: App
   }
 
   const canvas = await loadImageToCanvas(file, locale)
-  applyPngQuantization(canvas, selectedQuality)
+  await applyPngQuantization(canvas, selectedQuality)
 
   const quantizedBlob = await canvasToBlob(canvas, 'image/png', 1)
   if (!quantizedBlob) {
@@ -420,14 +439,18 @@ export const useCompressor = () => {
 
     try {
       const zip = new JSZip()
-      const processedFiles = await Promise.all(
-        entries.value.map(async (entry) => ({
+      const processedFiles: Array<{ relativePath: string, blob: Blob }> = []
+
+      for (const entry of entries.value) {
+        processedFiles.push({
           relativePath: entry.relativePath,
           blob: entry.isCompressibleImage
             ? await compressImage(entry.file, quality.value, locale.value)
             : entry.file
-        }))
-      )
+        })
+
+        await yieldToBrowser()
+      }
 
       processedFiles.forEach((file) => {
         zip.file(file.relativePath, file.blob)
