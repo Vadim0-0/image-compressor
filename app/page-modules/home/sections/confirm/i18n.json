@@ -1,0 +1,37 @@
+{
+  "downloadButton": {
+    "type": "button",
+    "ru": "Скачать zip архив",
+    "en": "Download zip archive"
+  },
+  "buildingArchiveButton": {
+    "type": "button",
+    "ru": "Собираем архив...",
+    "en": "Building archive..."
+  },
+  "meta": {
+    "type": "text",
+    "ru": "{archiveName}. Файлов в обработке: {filesCount}, изображений: {imageCount}.",
+    "en": "{archiveName}. Files being processed: {filesCount}, images: {imageCount}."
+  },
+  "archiveError": {
+    "type": "error",
+    "ru": "Не удалось сформировать zip архив.",
+    "en": "Failed to generate the zip archive."
+  },
+  "browserOnlyError": {
+    "type": "error",
+    "ru": "Сжатие изображений доступно только в браузере.",
+    "en": "Image compression is only available in the browser."
+  },
+  "canvasError": {
+    "type": "error",
+    "ru": "Не удалось подготовить canvas для сжатия.",
+    "en": "Failed to prepare canvas for compression."
+  },
+  "imageReadError": {
+    "type": "error",
+    "ru": "Не удалось прочитать изображение \"{fileName}\".",
+    "en": "Failed to read the image \"{fileName}\"."
+  }
+}

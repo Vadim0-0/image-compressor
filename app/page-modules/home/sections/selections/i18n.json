@@ -1,0 +1,17 @@
+{
+  "title": {
+    "type": "text",
+    "ru": "Выберите итоговое качество изображения(%)",
+    "en": "Choose the final image quality (%)"
+  },
+  "hintCompression": {
+    "type": "text",
+    "ru": "Чем ниже значение, тем меньше будет размер файла в архиве.",
+    "en": "The lower the value, the smaller the file size in the archive."
+  },
+  "hintOtherFiles": {
+    "type": "text",
+    "ru": "Если в папке будут находится сторонние файлы, то они просто скопируются без изменений.",
+    "en": "If the folder contains other files, they will be copied without changes."
+  }
+}

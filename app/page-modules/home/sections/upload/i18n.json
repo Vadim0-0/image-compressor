@@ -1,0 +1,42 @@
+{
+  "dropzoneTitle": {
+    "type": "text",
+    "ru": "Перетащите изображения или папку целиком",
+    "en": "Drag images or an entire folder"
+  },
+  "selectedFilesInfo": {
+    "type": "text",
+    "ru": "Выбрано {count} файл(ов)",
+    "en": "{count} file(s) selected"
+  },
+  "chooseFilesButton": {
+    "type": "button",
+    "ru": "Выбрать файлы",
+    "en": "Choose files"
+  },
+  "chooseFolderButton": {
+    "type": "button",
+    "ru": "Выбрать папку",
+    "en": "Choose folder"
+  },
+  "clearButton": {
+    "type": "button",
+    "ru": "Очистить",
+    "en": "Clear"
+  },
+  "selectionError": {
+    "type": "error",
+    "ru": "Не удалось получить файлы для обработки.",
+    "en": "Failed to get files for processing."
+  },
+  "readDropError": {
+    "type": "error",
+    "ru": "Не удалось прочитать выбранные файлы или папку.",
+    "en": "Failed to read the selected files or folder."
+  },
+  "readFolderError": {
+    "type": "error",
+    "ru": "Не удалось прочитать содержимое выбранной папки.",
+    "en": "Failed to read the contents of the selected folder."
+  }
+}
