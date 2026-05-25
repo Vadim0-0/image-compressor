@@ -2,7 +2,7 @@
 
 Веб-приложение для сжатия изображений с выгрузкой результата в ZIP-архив. Обработка выполняется **полностью в браузере** — файлы не отправляются на сервер.
 
-**Сайт:** https://image-compressor-kappa-six.vercel.app/
+**Сайт:** <a href="https://image-compressor-kappa-six.vercel.app/" target="_blank" rel="noopener noreferrer">https://image-compressor-kappa-six.vercel.app/</a>
 
 **[English version →](README.md)**
 
