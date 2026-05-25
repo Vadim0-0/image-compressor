@@ -2,6 +2,8 @@
 
 A client-side web app for compressing images and downloading them as a ZIP archive. Files are processed entirely in the browser — nothing is uploaded to a server.
 
+**Live site:** https://image-compressor-kappa-six.vercel.app/
+
 **[Русская версия →](README-RU.md)**
 
 ## What it does
